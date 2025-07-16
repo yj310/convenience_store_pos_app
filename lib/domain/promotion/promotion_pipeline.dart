@@ -37,7 +37,29 @@ class PromotionPipeline {
     // 고정 가격 프로모션 처리
     _processFixedPrice(processedItems);
 
-    return processedItems;
+    // 같은 상품끼리 합치기
+    return _mergeSameProducts(processedItems);
+  }
+
+  List<CartItem> _mergeSameProducts(List<CartItem> items) {
+    final Map<String, CartItem> mergedItems = {};
+
+    for (final item in items) {
+      final key = '${item.product.id}_${item.isGift}_${item.appliedPromotion}';
+
+      if (mergedItems.containsKey(key)) {
+        // 같은 상품이면 수량 합치기
+        final existingItem = mergedItems[key]!;
+        mergedItems[key] = existingItem.copyWith(
+          quantity: existingItem.quantity + item.quantity,
+        );
+      } else {
+        // 새로운 상품이면 추가
+        mergedItems[key] = item;
+      }
+    }
+
+    return mergedItems.values.toList();
   }
 
   void _processBuyOneGetOne(List<CartItem> items) {
@@ -55,20 +77,41 @@ class PromotionPipeline {
           )
           .toList();
 
-      // 2개씩 묶어서 처리
-      for (int i = 0; i < eligibleItems.length - 1; i += 2) {
-        final item1 = eligibleItems[i];
-        final item2 = eligibleItems[i + 1];
-        
-        // 더 저렴한 상품을 증정품으로 설정
-        final giftItem = item1.product.price <= item2.product.price ? item1 : item2;
-        final giftIndex = items.indexOf(giftItem);
-        
-        if (giftIndex != -1) {
-          items[giftIndex] = giftItem.copyWith(
-            isGift: true,
-            appliedPromotion: promotion.type,
-          );
+      // 총 수량 계산
+      int totalQuantity = eligibleItems.fold(
+        0,
+        (sum, item) => sum + item.quantity,
+      );
+
+      // 1+1 프로모션: 2개당 1개 무료
+      int freeQuantity = totalQuantity ~/ 2;
+
+      if (freeQuantity > 0) {
+        // 가격순으로 정렬 (저렴한 것부터 무료로)
+        eligibleItems.sort(
+          (a, b) => a.product.price.compareTo(b.product.price),
+        );
+
+        int remainingFree = freeQuantity;
+
+        for (final item in eligibleItems) {
+          if (remainingFree <= 0) break;
+
+          final itemIndex = items.indexOf(item);
+          if (itemIndex != -1) {
+            final currentItem = items[itemIndex];
+            final freeCount = remainingFree > currentItem.quantity
+                ? currentItem.quantity
+                : remainingFree;
+
+            // 무료 수량 설정
+            items[itemIndex] = currentItem.copyWith(
+              freeQuantity: freeCount,
+              appliedPromotion: promotion.type,
+            );
+
+            remainingFree -= freeCount;
+          }
         }
       }
     }
@@ -89,24 +132,41 @@ class PromotionPipeline {
           )
           .toList();
 
-      // 3개씩 묶어서 처리
-      for (int i = 0; i < eligibleItems.length - 2; i += 3) {
-        final item1 = eligibleItems[i];
-        final item2 = eligibleItems[i + 1];
-        final item3 = eligibleItems[i + 2];
-        
-        // 가장 저렴한 상품을 증정품으로 설정
-        final giftItem = item1.product.price <= item2.product.price 
-            ? (item1.product.price <= item3.product.price ? item1 : item3)
-            : (item2.product.price <= item3.product.price ? item2 : item3);
-        
-        final giftIndex = items.indexOf(giftItem);
-        
-        if (giftIndex != -1) {
-          items[giftIndex] = giftItem.copyWith(
-            isGift: true,
-            appliedPromotion: promotion.type,
-          );
+      // 총 수량 계산
+      int totalQuantity = eligibleItems.fold(
+        0,
+        (sum, item) => sum + item.quantity,
+      );
+
+      // 2+1 프로모션: 3개당 1개 무료
+      int freeQuantity = totalQuantity ~/ 3;
+
+      if (freeQuantity > 0) {
+        // 가격순으로 정렬 (저렴한 것부터 무료로)
+        eligibleItems.sort(
+          (a, b) => a.product.price.compareTo(b.product.price),
+        );
+
+        int remainingFree = freeQuantity;
+
+        for (final item in eligibleItems) {
+          if (remainingFree <= 0) break;
+
+          final itemIndex = items.indexOf(item);
+          if (itemIndex != -1) {
+            final currentItem = items[itemIndex];
+            final freeCount = remainingFree > currentItem.quantity
+                ? currentItem.quantity
+                : remainingFree;
+
+            // 무료 수량 설정
+            items[itemIndex] = currentItem.copyWith(
+              freeQuantity: freeCount,
+              appliedPromotion: promotion.type,
+            );
+
+            remainingFree -= freeCount;
+          }
         }
       }
     }

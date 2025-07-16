@@ -158,14 +158,19 @@ class CartItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasPromotion = item.appliedPromotion != null;
+    final hasFree = item.freeQuantity > 0;
+    final unitPrice = item.product.price;
+    final totalWithoutPromo = unitPrice * item.quantity;
+    final totalWithPromo = item.totalPrice;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: item.isGift ? Colors.green[50] : Colors.white,
+        color: hasFree ? Colors.green[50] : Colors.white,
         border: Border.all(
-          color: item.isGift ? Colors.green : Colors.grey[300]!,
-          width: item.isGift ? 2 : 1,
+          color: hasFree ? Colors.green : Colors.grey[300]!,
+          width: hasFree ? 2 : 1,
         ),
         borderRadius: BorderRadius.circular(8),
       ),
@@ -186,7 +191,7 @@ class CartItemWidget extends StatelessWidget {
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
-                        if (item.isGift)
+                        if (hasFree)
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 8,
@@ -207,10 +212,19 @@ class CartItemWidget extends StatelessWidget {
                           ),
                       ],
                     ),
-                    if (item.appliedPromotion != null)
+                    if (hasPromotion)
                       Text(
                         '프로모션: ${item.appliedPromotion}',
                         style: TextStyle(color: Colors.blue[600], fontSize: 12),
+                      ),
+                    if (hasFree)
+                      Text(
+                        '${item.quantity}개 중 ${item.freeQuantity}개 무료',
+                        style: const TextStyle(
+                          color: Colors.green,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                   ],
                 ),
@@ -227,10 +241,10 @@ class CartItemWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '${item.product.price.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}원',
-                style: TextStyle(
-                  color: item.isGift ? Colors.green : Colors.grey[600],
-                  decoration: item.isGift ? TextDecoration.lineThrough : null,
+                '${unitPrice.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}원',
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
               Row(
@@ -269,17 +283,39 @@ class CartItemWidget extends StatelessWidget {
               ),
             ],
           ),
-          if (item.quantity > 1)
-            Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Text(
-                '소계: ${(item.isGift ? 0 : item.totalPrice).toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}원',
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blue,
+          // 가격 정보 3종 표시
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '프로모션 미적용: ${totalWithoutPromo.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}원',
+                  style: const TextStyle(
+                    color: Colors.grey,
+                    fontWeight: FontWeight.normal,
+                    fontSize: 12,
+                  ),
                 ),
-              ),
+                Text(
+                  '프로모션 적용: ${totalWithPromo.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}원',
+                  style: const TextStyle(
+                    color: Colors.blue,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+                Text(
+                  '1개당 ${unitPrice.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}원',
+                  style: const TextStyle(
+                    color: Colors.black54,
+                    fontWeight: FontWeight.normal,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
             ),
+          ),
         ],
       ),
     );

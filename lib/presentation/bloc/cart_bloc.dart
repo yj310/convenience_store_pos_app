@@ -147,20 +147,22 @@ class CartBloc extends Bloc<CartEvent, CartState> {
   void _onAddProductToCart(AddProductToCart event, Emitter<CartState> emit) {
     if (state is CartLoaded) {
       final currentState = state as CartLoaded;
+
+      // 같은 상품 중 유료 상품을 찾기 (증정 상품이 아닌 것)
       final existingItemIndex = currentState.cartItems.indexWhere(
-        (item) => item.product.id == event.product.id,
+        (item) => item.product.id == event.product.id && !item.isGift,
       );
 
       List<CartItem> newCartItems = List.from(currentState.cartItems);
 
       if (existingItemIndex != -1) {
-        // 기존 상품이 있으면 수량 증가
+        // 기존 유료 상품이 있으면 수량 증가
         final existingItem = newCartItems[existingItemIndex];
         newCartItems[existingItemIndex] = existingItem.copyWith(
           quantity: existingItem.quantity + 1,
         );
       } else {
-        // 새 상품 추가
+        // 새 상품 추가 (유료로 추가)
         newCartItems.add(CartItem(product: event.product, quantity: 1));
       }
 
@@ -168,7 +170,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
       final processedItems = _promotionPipeline.processCart(newCartItems);
       final totalPrice = processedItems.fold<int>(
         0,
-        (sum, item) => sum + (item.isGift ? 0 : item.totalPrice),
+        (sum, item) => sum + item.totalPrice,
       );
 
       emit(
@@ -194,7 +196,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
       final processedItems = _promotionPipeline.processCart(newCartItems);
       final totalPrice = processedItems.fold<int>(
         0,
-        (sum, item) => sum + (item.isGift ? 0 : item.totalPrice),
+        (sum, item) => sum + item.totalPrice,
       );
 
       emit(
@@ -230,7 +232,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
         final processedItems = _promotionPipeline.processCart(newCartItems);
         final totalPrice = processedItems.fold<int>(
           0,
-          (sum, item) => sum + (item.isGift ? 0 : item.totalPrice),
+          (sum, item) => sum + item.totalPrice,
         );
 
         emit(
