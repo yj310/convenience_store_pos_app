@@ -16,7 +16,8 @@ class _BarcodeScannerWidgetState extends State<BarcodeScannerWidget> {
   @override
   void initState() {
     super.initState();
-    _barcodeFocusNode.requestFocus();
+    // 전역 키보드 리스너가 있으므로 자동 포커스 제거
+    // _barcodeFocusNode.requestFocus();
   }
 
   @override
@@ -109,39 +110,8 @@ class _BarcodeScannerWidgetState extends State<BarcodeScannerWidget> {
               ],
             ),
           ),
-          // 테스트 바코드 버튼들
-          Padding(
-            padding: const EdgeInsets.only(bottom: 4, left: 8, right: 8),
-            child: Wrap(
-              spacing: 2,
-              runSpacing: 2,
-              children: [
-                _buildTestBarcodeButton('콜라', '8801234567890'),
-                _buildTestBarcodeButton('사이다', '8801234567891'),
-                _buildTestBarcodeButton('초코바', '8801234567895'),
-                _buildTestBarcodeButton('생수', '8801234567898'),
-                _buildTestBarcodeButton('에너지', '8801234567901'),
-              ],
-            ),
-          ),
         ],
       ),
-    );
-  }
-
-  Widget _buildTestBarcodeButton(String label, String barcode) {
-    return ElevatedButton(
-      onPressed: () {
-        widget.onBarcodeScanned(barcode);
-      },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.grey[200],
-        foregroundColor: Colors.grey[800],
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-        textStyle: const TextStyle(fontSize: 9),
-        minimumSize: const Size(35, 20),
-      ),
-      child: Text(label),
     );
   }
 }
