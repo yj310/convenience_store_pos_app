@@ -63,18 +63,7 @@ class CartWidget extends StatelessWidget {
                       ],
                     ),
                   )
-                : ListView.builder(
-                    itemCount: cartItems.length,
-                    itemBuilder: (context, index) {
-                      final item = cartItems[index];
-                      return CartItemWidget(
-                        item: item,
-                        onRemove: () => onRemoveItem(item.product.id),
-                        onUpdateQuantity: (quantity) =>
-                            onUpdateQuantity(item.product.id, quantity),
-                      );
-                    },
-                  ),
+                : _buildGroupedCartItems(),
           ),
           // 총액 및 결제 버튼
           Container(
@@ -140,6 +129,74 @@ class CartWidget extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildGroupedCartItems() {
+    if (cartItems.isEmpty) {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.shopping_cart_outlined, size: 64, color: Colors.grey),
+            SizedBox(height: 16),
+            Text(
+              '장바구니가 비어있습니다',
+              style: TextStyle(fontSize: 16, color: Colors.grey),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final groupedItems = <String, List<CartItem>>{};
+    for (final item in cartItems) {
+      final groupKey = item.product.name;
+      groupedItems.update(
+        groupKey,
+        (list) => list..add(item),
+        ifAbsent: () => [item],
+      );
+    }
+
+    return ListView.builder(
+      itemCount: groupedItems.length,
+      itemBuilder: (context, index) {
+        final groupKey = groupedItems.keys.elementAt(index);
+        final groupItems = groupedItems[groupKey]!;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 8.0,
+                vertical: 4.0,
+              ),
+              child: Text(
+                groupKey,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            ...groupItems.map((item) {
+              final hasPromotion = item.appliedPromotion != null;
+              final hasFree = item.freeQuantity > 0;
+              final unitPrice = item.product.price;
+              final totalWithoutPromo = unitPrice * item.quantity;
+              final totalWithPromo = item.totalPrice;
+              return CartItemWidget(
+                item: item,
+                onRemove: () => onRemoveItem(item.product.id),
+                onUpdateQuantity: (quantity) =>
+                    onUpdateQuantity(item.product.id, quantity),
+              );
+            }).toList(),
+          ],
+        );
+      },
     );
   }
 }

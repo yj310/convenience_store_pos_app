@@ -7,6 +7,7 @@ class CartItem extends Equatable {
   final bool isGift;
   final String? appliedPromotion;
   final int freeQuantity;
+  final String? groupId; // 같은 그룹의 상품들을 묶기 위한 ID
 
   const CartItem({
     required this.product,
@@ -14,6 +15,7 @@ class CartItem extends Equatable {
     this.isGift = false,
     this.appliedPromotion,
     this.freeQuantity = 0,
+    this.groupId,
   });
 
   CartItem copyWith({
@@ -22,6 +24,7 @@ class CartItem extends Equatable {
     bool? isGift,
     String? appliedPromotion,
     int? freeQuantity,
+    String? groupId,
   }) {
     return CartItem(
       product: product ?? this.product,
@@ -29,6 +32,7 @@ class CartItem extends Equatable {
       isGift: isGift ?? this.isGift,
       appliedPromotion: appliedPromotion ?? this.appliedPromotion,
       freeQuantity: freeQuantity ?? this.freeQuantity,
+      groupId: groupId ?? this.groupId,
     );
   }
 
@@ -41,5 +45,6 @@ class CartItem extends Equatable {
     isGift,
     appliedPromotion,
     freeQuantity,
+    groupId,
   ];
 }
