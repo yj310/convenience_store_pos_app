@@ -94,6 +94,8 @@ class PromotionPipeline {
         0,
         (sum, item) => sum + item.quantity,
       );
+      // 1+1 프로모션: 2개당 1개 무료
+      // 1개 구매: 1개 가격, 2개 구매: 1개 가격, 3개 구매: 2개 가격, 4개 구매: 2개 가격
       int payQuantity = (totalQuantity + 1) ~/ 2;
       int freeQuantity = totalQuantity - payQuantity;
 
@@ -167,36 +169,36 @@ class PromotionPipeline {
       );
 
       // 2+1 프로모션: 3개당 1개 무료
-      int freeQuantity = totalQuantity ~/ 3;
+      // 1개 구매: 1개 가격, 2개 구매: 2개 가격, 3개 구매: 2개 가격, 4개 구매: 3개 가격
+      int payQuantity = totalQuantity - (totalQuantity ~/ 3);
+      int freeQuantity = totalQuantity - payQuantity;
 
-      print('총 수량: $totalQuantity, 무료 수량: $freeQuantity');
+      print('총 수량: $totalQuantity, 결제 수량: $payQuantity, 무료 수량: $freeQuantity');
 
-      if (freeQuantity > 0) {
-        // 그룹 내에서 무료 수량을 균등하게 분배
-        int remainingFree = freeQuantity;
-        int totalEligibleQuantity = totalQuantity;
+      // 그룹 내에서 무료 수량을 균등하게 분배
+      int remainingFree = freeQuantity;
+      int totalEligibleQuantity = totalQuantity;
 
-        for (final item in eligibleItems) {
-          final itemIndex = items.indexOf(item);
-          if (itemIndex != -1) {
-            final currentItem = items[itemIndex];
-            // 비율에 따라 무료 수량 계산
-            final freeRatio = currentItem.quantity / totalEligibleQuantity;
-            final freeCount = (freeQuantity * freeRatio).round();
-            final actualFreeCount = remainingFree > freeCount
-                ? freeCount
-                : remainingFree;
+      for (final item in eligibleItems) {
+        final itemIndex = items.indexOf(item);
+        if (itemIndex != -1) {
+          final currentItem = items[itemIndex];
+          // 비율에 따라 무료 수량 계산
+          final freeRatio = currentItem.quantity / totalEligibleQuantity;
+          final freeCount = (freeQuantity * freeRatio).round();
+          final actualFreeCount = remainingFree > freeCount
+              ? freeCount
+              : remainingFree;
 
-            items[itemIndex] = currentItem.copyWith(
-              freeQuantity: actualFreeCount,
-              appliedPromotion: promotion.type,
-              groupId: promotion.group,
-            );
-            print(
-              '${currentItem.product.name}에 무료 ${actualFreeCount}개 적용 (비율: ${(freeRatio * 100).toStringAsFixed(1)}%)',
-            );
-            remainingFree -= actualFreeCount;
-          }
+          items[itemIndex] = currentItem.copyWith(
+            freeQuantity: actualFreeCount,
+            appliedPromotion: promotion.type,
+            groupId: promotion.group,
+          );
+          print(
+            '${currentItem.product.name}에 무료 ${actualFreeCount}개 적용 (비율: ${(freeRatio * 100).toStringAsFixed(1)}%)',
+          );
+          remainingFree -= actualFreeCount;
         }
       }
     }
