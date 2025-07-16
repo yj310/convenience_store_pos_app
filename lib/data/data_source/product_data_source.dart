@@ -121,7 +121,7 @@ class MockProductDataSource implements ProductDataSource {
         category: '에너지드링크',
         price: 2800,
         promotionType: 'fixed_price',
-        promotionGroup: 'energy',
+        promotionGroup: 'energy_redbull',
         note: '2,000원 특가',
       ),
       const Product(
@@ -130,7 +130,7 @@ class MockProductDataSource implements ProductDataSource {
         category: '에너지드링크',
         price: 3200,
         promotionType: 'fixed_price',
-        promotionGroup: 'energy',
+        promotionGroup: 'energy_monster',
         note: '2,200원 특가',
       ),
       const Product(
@@ -189,7 +189,7 @@ class MockProductDataSource implements ProductDataSource {
       ),
       const Product(
         id: 'icecream_vanilla',
-        name: '아이스크림 바 닐라',
+        name: '아이스크림 바닐라',
         category: '아이스크림',
         price: 1500,
         promotionType: null,

@@ -34,7 +34,14 @@ class MyApp extends StatelessWidget {
                 group: 'water',
                 giftProductId: 'nongshim_cup',
               ),
-              const FixedPricePromotion(group: 'energy', fixedPrice: 2000),
+              const FixedPricePromotion(
+                group: 'energy_redbull',
+                fixedPrice: 2000,
+              ),
+              const FixedPricePromotion(
+                group: 'energy_monster',
+                fixedPrice: 2200,
+              ),
             ],
           );
 
