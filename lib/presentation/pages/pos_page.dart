@@ -68,8 +68,8 @@ class PosPage extends StatelessWidget {
                     children: [
                       // 바코드 스캐너
                       Container(
-                        height: 120,
-                        padding: const EdgeInsets.all(16),
+                        height: 160,
+                        padding: const EdgeInsets.all(8),
                         child: BarcodeScannerWidget(
                           onBarcodeScanned: (barcode) {
                             context.read<CartBloc>().add(ScanBarcode(barcode));
