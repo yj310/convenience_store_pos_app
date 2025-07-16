@@ -220,10 +220,7 @@ class PromotionPipeline {
       if (triggerItems.isNotEmpty) {
         // 증정 상품이 이미 있는지 확인
         final existingGift = items
-            .where(
-              (item) =>
-                  item.product.id == promotion.giftProductId && item.isGift,
-            )
+            .where((item) => item.product.id == promotion.giftProductId)
             .toList();
 
         if (existingGift.isEmpty) {
@@ -233,17 +230,74 @@ class PromotionPipeline {
               .firstOrNull;
 
           if (giftProduct != null) {
+            // 기존 증정 상품을 무료로 설정
             final giftIndex = items.indexOf(giftProduct);
             if (giftIndex != -1) {
               items[giftIndex] = giftProduct.copyWith(
                 isGift: true,
                 appliedPromotion: promotion.type,
+                freeQuantity: giftProduct.quantity, // 전체 수량을 무료로
+              );
+            }
+          } else {
+            // 증정 상품이 장바구니에 없으면 새로 추가
+            final giftProductData = _getGiftProductData(
+              promotion.giftProductId,
+            );
+            if (giftProductData != null) {
+              final newGiftItem = CartItem(
+                product: giftProductData,
+                quantity: 1,
+                isGift: true,
+                appliedPromotion: promotion.type,
+                freeQuantity: 1, // 1개 무료
+              );
+              items.add(newGiftItem);
+              print('증정 상품 추가: ${giftProductData.name}');
+            }
+          }
+        } else {
+          // 기존 증정 상품을 무료로 설정
+          for (final giftItem in existingGift) {
+            final giftIndex = items.indexOf(giftItem);
+            if (giftIndex != -1) {
+              items[giftIndex] = giftItem.copyWith(
+                isGift: true,
+                appliedPromotion: promotion.type,
+                freeQuantity: giftItem.quantity, // 전체 수량을 무료로
               );
             }
           }
         }
       }
     }
+  }
+
+  // 증정 상품 데이터를 가져오는 헬퍼 메서드
+  Product? _getGiftProductData(String productId) {
+    // Mock 데이터에서 증정 상품 정보 가져오기
+    final mockProducts = {
+      'nongshim_cup': const Product(
+        id: 'nongshim_cup',
+        name: '농심 신라면 컵',
+        category: '컵라면',
+        price: 1100,
+        promotionType: null,
+        promotionGroup: 'instant',
+        note: '증정 대상',
+      ),
+      'ottogi_cup': const Product(
+        id: 'ottogi_cup',
+        name: '오뚜기 진라면 컵',
+        category: '컵라면',
+        price: 1100,
+        promotionType: null,
+        promotionGroup: 'instant',
+        note: '증정 대상',
+      ),
+    };
+
+    return mockProducts[productId];
   }
 
   void _processFixedPrice(List<CartItem> items) {

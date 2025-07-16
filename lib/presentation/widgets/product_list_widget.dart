@@ -123,7 +123,7 @@ class ProductCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
-                    product.promotionType!,
+                    _getPromotionDisplayText(product.promotionType!),
                     style: TextStyle(
                       color: Colors.orange[800],
                       fontSize: 10,
@@ -162,6 +162,21 @@ class ProductCard extends StatelessWidget {
         return Icons.icecream;
       default:
         return Icons.shopping_bag;
+    }
+  }
+
+  String _getPromotionDisplayText(String promotionType) {
+    switch (promotionType) {
+      case '1+1':
+        return '1+1';
+      case '2+1':
+        return '2+1';
+      case 'free_gift':
+        return '무료 증정';
+      case 'fixed_price':
+        return '고정 가격';
+      default:
+        return promotionType;
     }
   }
 }

@@ -213,6 +213,21 @@ class CartItemWidget extends StatelessWidget {
     required this.onUpdateQuantity,
   });
 
+  String _getPromotionDisplayText(String promotionType) {
+    switch (promotionType) {
+      case '1+1':
+        return '1+1';
+      case '2+1':
+        return '2+1';
+      case 'free_gift':
+        return '무료 증정';
+      case 'fixed_price':
+        return '고정 가격';
+      default:
+        return promotionType;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final hasPromotion = item.appliedPromotion != null;
@@ -271,7 +286,7 @@ class CartItemWidget extends StatelessWidget {
                     ),
                     if (hasPromotion)
                       Text(
-                        '프로모션: ${item.appliedPromotion}',
+                        '프로모션: ${_getPromotionDisplayText(item.appliedPromotion!)}',
                         style: TextStyle(color: Colors.blue[600], fontSize: 12),
                       ),
                     if (hasFree)
