@@ -54,6 +54,8 @@ class ScanBarcode extends CartEvent {
   List<Object?> get props => [barcode];
 }
 
+class ClearError extends CartEvent {}
+
 // States
 abstract class CartState extends Equatable {
   const CartState();
@@ -123,6 +125,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     on<UpdateProductQuantity>(_onUpdateProductQuantity);
     on<ClearCart>(_onClearCart);
     on<ScanBarcode>(_onScanBarcode);
+    on<ClearError>(_onClearError);
   }
 
   Future<void> _onLoadProducts(
@@ -273,6 +276,13 @@ class CartBloc extends Bloc<CartEvent, CartState> {
         final currentState = state as CartLoaded;
         emit(currentState.copyWith(error: '바코드 스캔 오류: ${e.toString()}'));
       }
+    }
+  }
+
+  void _onClearError(ClearError event, Emitter<CartState> emit) {
+    if (state is CartLoaded) {
+      final currentState = state as CartLoaded;
+      emit(currentState.copyWith(error: null));
     }
   }
 }

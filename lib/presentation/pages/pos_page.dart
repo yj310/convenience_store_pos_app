@@ -59,6 +59,29 @@ class PosPage extends StatelessWidget {
           }
 
           if (state is CartLoaded) {
+            // 에러 메시지가 있으면 스낵바 표시
+            if (state.error != null) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                ScaffoldMessenger.of(context).clearSnackBars();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(state.error!),
+                    backgroundColor: Colors.red,
+                    duration: const Duration(seconds: 3),
+                    action: SnackBarAction(
+                      label: '확인',
+                      textColor: Colors.white,
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                      },
+                    ),
+                  ),
+                );
+                // 에러 메시지를 표시한 후 에러 상태를 클리어
+                context.read<CartBloc>().add(ClearError());
+              });
+            }
+
             return Row(
               children: [
                 // 왼쪽: 상품 목록 및 바코드 스캐너

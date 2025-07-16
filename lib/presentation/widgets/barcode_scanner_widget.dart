@@ -85,15 +85,6 @@ class _BarcodeScannerWidgetState extends State<BarcodeScannerWidget> {
                         horizontal: 8,
                         vertical: 4,
                       ),
-                      suffixIcon: IconButton(
-                        onPressed: _handleBarcodeSubmit,
-                        icon: const Icon(Icons.search, size: 16),
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(
-                          minWidth: 32,
-                          minHeight: 32,
-                        ),
-                      ),
                     ),
                     onSubmitted: (_) => _handleBarcodeSubmit(),
                     textInputAction: TextInputAction.search,
